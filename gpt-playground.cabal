@@ -1,0 +1,39 @@
+cabal-version:      3.4
+name:               gpt-playground
+version:            0.1.0.0
+-- synopsis:
+-- description:
+homepage:           https://github.com/MapaRaccoon/gpt-playground
+license:            Apache-2.0
+-- license-file:       LICENSE
+author:             Mapa
+maintainer:         maparaccoon@gmail.com
+-- copyright:
+category:           Web
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+executable gpt-playground
+    import:           warnings
+    main-is:          Main.hs
+    other-modules: OpenAI.Resources OpenAI.Api
+    -- other-extensions:
+    build-depends:
+        base,
+        servant,
+        servant-client,
+        servant-auth,
+        servant-auth-client,
+        http-client,
+        http-client-tls,
+        lens,
+        aeson,
+        text,
+    hs-source-dirs:   app
+    default-language: GHC2021
+    ghc-options: -threaded
+    compiler: ghc

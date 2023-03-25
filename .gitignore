@@ -1,0 +1,6 @@
+# Cabal's binary build cache
+dist-newstyle
+# Created by direnv
+.direnv
+# Created by Nix
+result
