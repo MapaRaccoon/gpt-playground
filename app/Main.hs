@@ -11,7 +11,7 @@ import           Network.HTTP.Client     hiding ( Proxy )
 import           Network.HTTP.Client.TLS ( tlsManagerSettings )
 
 import qualified OpenAI.Api              as OpenAI
-import           OpenAI.Api              ( models )
+import           OpenAI.Api              ( mModels )
 import           OpenAI.Resources
 
 import           Servant.Client
@@ -23,9 +23,9 @@ main = do
   mgr <- newManager tlsManagerSettings
   api <- OpenAI.mkApi . pack <$> getEnv "OPENAI_API_KEY"
   let clientEnv = mkClientEnv mgr (BaseUrl Https "api.openai.com" 443 "v1")
-  result <- runClientM (api ^. models) clientEnv
+  result <- runClientM (api ^. mModels) clientEnv
   case result of
     Left err -> print err
-    Right response -> print $ fmap (view m_id) response
+    Right response -> print $ fmap (view mId) response
   putStrLn "woof"
 

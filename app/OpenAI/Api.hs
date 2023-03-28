@@ -1,13 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 
+{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE TemplateHaskell #-}
---{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeOperators #-}
 
-module OpenAI.Api ( mkApi, Api(..), models ) where
+module OpenAI.Api ( mkApi, Api(..), HasMModels(..), HasMModel(..) ) where
 
 import           Control.Lens
-import           Control.Lens.TH()
+import           Control.Lens.TH     ()
 
 import           Data.Proxy
 import           Data.Text
@@ -20,12 +20,19 @@ import           Servant.Auth        as SA
 import           Servant.Auth.Client ( Bearer, Token(..) )
 import           Servant.Client
 
-type ApiSpec = "models" :> Auth '[ Bearer ] Text :> Get '[ JSON ] ModelsResponse
+type PreAuthApiSpec = "models" :> Get '[ JSON ] ModelsResponse
+  :<|> "models" :> Capture "model" Text :> Get '[ JSON ] Model
 
-newtype Api = Api { _models :: ClientM [Model] }
-makeLenses ''Api
+type ApiSpec = Auth '[ Bearer ] Text :> PreAuthApiSpec
+
+data Api =
+  Api { _apiMModels :: ClientM [Model], _apiMModel :: Text -> ClientM Model }
+
+makeFields ''Api
 
 mkApi :: Text -> Api
-mkApi tok = let modelsC = client (Proxy :: Proxy ApiSpec) (Token (encodeUtf8 tok))
-            in
-              Api { _models = fmap (view mr_data) modelsC }
+mkApi tok =
+  let fModels :<|> fModel =
+        client (Proxy :: Proxy ApiSpec) (Token (encodeUtf8 tok))
+  in
+    Api { _apiMModels = fmap (view mData) fModels, _apiMModel = fModel }
